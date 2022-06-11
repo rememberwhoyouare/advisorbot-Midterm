@@ -10,7 +10,7 @@ class AdvisorMain {
         /** list all available commands */
         void help();
         /** output help for the specified command */
-        void helpcmd();
+        void helpcmd(std::string cmd);
         /** list available products */
         void prod();
         /** find minimum bid or ask for product in current time step */

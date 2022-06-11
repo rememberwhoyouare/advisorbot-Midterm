@@ -33,8 +33,31 @@ void AdvisorMain::help() {
     << std::endl;
 }
 /** output help for the specified command */
-void AdvisorMain::helpcmd() {
-    std::cout << "Help for the specified command" << std::endl;
+void AdvisorMain::helpcmd(std::string cmd) {
+    if (cmd.compare("prod") == 0) {
+        std::cout << "list available products" << std::endl;
+    }
+    if (cmd.compare("min") == 0) {
+        std::cout << "min ETH/BTC ask -> min ETH/BTC ask in the current time step" << std::endl;
+    }
+    if (cmd.compare("max") == 0) {
+        std::cout << "max ETH/BTC ask -> max ETH/BTC ask in the current time step" << std::endl;
+    }
+    if (cmd.compare("avg") == 0) {
+        std::cout << "avg ETH/BTC bid 10 -> average ETH/BTC bid over last 10 timesteps" << std::endl;
+    }
+    if (cmd.compare("predict") == 0) {
+        std::cout << "predict max ETH/BTC bid ->  The average ETH/BTC ask price over the last 10 timesteps" << std::endl;
+    }
+    if (cmd.compare("time") == 0) {
+        std::cout << "state current time in dataset, i.e. which timeframe are we looking at" << std::endl;
+    }
+    if (cmd.compare("step") == 0) {
+        std::cout << "move to next time step" << std::endl;
+    }
+    if (cmd.compare("exit") == 0) {
+        std::cout << "exit the program" << std::endl;
+    }
 }
 /** list available products */
 void AdvisorMain::prod() {
@@ -83,7 +106,7 @@ void AdvisorMain::processUserOption(std::string userOption) {
         help();
     }
     if (userOption.compare("help cmd") == 0) {
-        helpcmd();
+        helpcmd("avg");
     }
     if (userOption.compare("prod") == 0) {
         prod();
