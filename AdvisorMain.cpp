@@ -1,7 +1,9 @@
 #include "AdvisorMain.h"
 #include <iostream>
 #include <string>
+#include <vector>
 #include "CSVReader.h"
+#include "OrderBook.h"
 
 AdvisorMain::AdvisorMain() {
 
@@ -65,7 +67,13 @@ void AdvisorMain::helpcmd(std::string cmd) {
 }
 /** list available products */
 void AdvisorMain::prod() {
-    std::cout << "The products are not available yet" << std::endl;
+    std::cout << "Avaliable products are: " << std::endl;
+    for (std::string const& product : orderBook.getKnownProducts()) {
+        std::cout << product << std::endl;
+    }
+    // print new line
+    std::cout << "\n" << std::endl;
+
 }
 /** find minimum bid or ask for product in current time step */
 void AdvisorMain::min() {
@@ -108,7 +116,7 @@ std::string AdvisorMain::getUserOption() {
 
 void AdvisorMain::processUserOption(std::string userOption) {
     // create vector to get help cmd option
-    std::vector token = CSVReader::tokenise(userOption, ' ');
+    std::vector<std::string> token = CSVReader::tokenise(userOption, ' ');
 
     if (userOption.compare("help") == 0) {
         help();

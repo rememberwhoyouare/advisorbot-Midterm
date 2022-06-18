@@ -1,6 +1,7 @@
 #pragma once
 #include <iostream>
 #include <string>
+#include "OrderBook.h"
 
 class AdvisorMain {
     public:
@@ -30,4 +31,6 @@ class AdvisorMain {
 
         std::string getUserOption();
         void processUserOption(std::string userOption);
+
+        OrderBook orderBook{"20200601.csv"};
 };
