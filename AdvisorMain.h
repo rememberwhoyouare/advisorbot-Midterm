@@ -1,6 +1,7 @@
 #pragma once
 #include <iostream>
 #include <string>
+#include <vector>
 #include "OrderBook.h"
 
 class AdvisorMain {
@@ -15,9 +16,9 @@ class AdvisorMain {
         /** list available products */
         void prod();
         /** find minimum bid or ask for product in current time step */
-        void min();
+        void min(std::vector<std::string> tokens);
         /** find maximum bid or ask for product in current time step */
-        void max();
+        void max(std::vector<std::string> tokens);
         /** compute average ask or bid for the sent product 
          * over the sent number of time steps */
         void avg();
@@ -32,5 +33,6 @@ class AdvisorMain {
         std::string getUserOption();
         void processUserOption(std::string userOption);
 
+        std::string currentTime;
         OrderBook orderBook{"20200601.csv"};
 };

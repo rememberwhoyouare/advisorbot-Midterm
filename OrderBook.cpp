@@ -1,5 +1,6 @@
 #include "OrderBook.h"
 #include "CSVReader.h"
+#include <iostream>
 #include <map>
 
 OrderBook::OrderBook(std::string filename) {
@@ -19,4 +20,57 @@ std::vector<std::string> OrderBook::getKnownProducts() {
     }
 
     return products;
+}
+
+std::vector<OrderBookEntry> OrderBook::getOrders(OrderBookType type,
+                                                std::string product,
+                                                std::string timestamp ) {
+    std::vector<OrderBookEntry> orders_sub;
+    for (OrderBookEntry& e : orders) {
+
+        if (e.orderType == type && 
+            e.product == product && 
+            e.timestamp == timestamp) {
+                orders_sub.push_back(e);
+            } 
+        //     else {
+        //     std::cout << "OrderBook::someting went wrong" << std::endl;
+        //     exit(0);
+        // } 
+    }
+    return orders_sub;
+}
+
+std::string OrderBook::getEarliestTime() {
+    return orders[0].timestamp;
+}
+
+std::string OrderBook::getNextTime(std::string timestamp) {
+    std::string next_timestamp = "";
+    for (OrderBookEntry& e : orders) {
+        if (e.timestamp > timestamp) {
+            next_timestamp = e.timestamp;
+            break;
+        }
+    }
+    if (next_timestamp == "") {
+        next_timestamp = getEarliestTime();
+    }
+    return next_timestamp;
+}
+
+double OrderBook::getHighPrice(std::vector<OrderBookEntry>& orders) {
+    double max = orders[0].price;
+    for (OrderBookEntry& e : orders) {
+        if (e.price > max) max = e.price;
+    }
+    return max;
+}
+
+double OrderBook::getLowPrice(std::vector<OrderBookEntry>& orders) {
+    double min = orders[0].price;
+    for (OrderBookEntry& e : orders) {
+        if (e.price < min) min = e.price;
+    }
+    return min;
 }

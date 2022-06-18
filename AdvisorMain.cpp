@@ -2,6 +2,7 @@
 #include <iostream>
 #include <string>
 #include <vector>
+#include <algorithm>
 #include "CSVReader.h"
 #include "OrderBook.h"
 
@@ -12,6 +13,8 @@ AdvisorMain::AdvisorMain() {
 void AdvisorMain::init() {
     std::string input;
     std::cout << "Command 'help' to list all available commands." << std::endl;
+    currentTime = orderBook.getEarliestTime();
+
 
     while(true) {
         input = getUserOption();
@@ -65,41 +68,76 @@ void AdvisorMain::helpcmd(std::string cmd) {
         std::cout << "wrong command, type 'help' to see the list of available commands." << std::endl;
     }
 }
+
 /** list available products */
 void AdvisorMain::prod() {
     std::cout << "Avaliable products are: " << std::endl;
     for (std::string const& product : orderBook.getKnownProducts()) {
         std::cout << product << std::endl;
     }
-    // print new line
+    // print new line  
     std::cout << "\n" << std::endl;
 
 }
+
 /** find minimum bid or ask for product in current time step */
-void AdvisorMain::min() {
-    std::cout << "The miminum is 0" << std::endl;
+void AdvisorMain::min(std::vector<std::string> tokens) {
+
+    /*
+
+    Fix the segmentation fault when entering wrong orderbooktype!!!
+
+    */
+
+    // OrderBookType meow = OrderBookEntry::stringToOrderBookType(tokens[2]);
+    // std::cout << meow << std::endl;
+
+    std::vector<OrderBookEntry> entries = orderBook.getOrders(OrderBookEntry::stringToOrderBookType(tokens[2]), tokens[1], currentTime);
+    std::vector<std::string> prod = orderBook.getKnownProducts();
+
+    // check for bad input
+    if (std::find(prod.begin(), prod.end(), tokens[1]) == prod.end() || entries[0].orderType == OrderBookType::unknown) {
+        std::cout << "Bad input!" << std::endl;
+        exit(0);
+    } 
+    std::cout << "The min " << tokens[2] << " for " << tokens[1] << " is " << orderBook.getLowPrice(entries) << std::endl;
+
 }
+
 /** find maximum bid or ask for product in current time step */
-void AdvisorMain::max() {
-    std::cout << "The maximum is 0" << std::endl;
-}
+void AdvisorMain::max(std::vector<std::string> tokens) {
+
+    std::vector<OrderBookEntry> entries = orderBook.getOrders(OrderBookEntry::stringToOrderBookType(tokens[2]), tokens[1], currentTime);
+    std::vector<std::string> prod = orderBook.getKnownProducts();
+
+    // check for bad input
+    if (std::find(prod.begin(), prod.end(), tokens[1]) == prod.end() || entries[0].orderType == OrderBookType::unknown) {
+        std::cout << "Bad input!" << std::endl;
+        exit(0);
+    } 
+    std::cout << "The max " << tokens[2] << " for " << tokens[1] << " is " << orderBook.getHighPrice(entries) << std::endl;}
+
 /** compute average ask or bid for the sent product 
  * over the sent number of time steps */
 void AdvisorMain::avg() {
     std::cout << "The average is 0 so far" << std::endl;
 }
+
 /** predict max or min ask or bid for the sent product for the next time step */
 void AdvisorMain::predict() {
     std::cout << "Cannot predict without data" << std::endl;
 }
+
 /** state current time in dataset, i.e. which timeframe are we looking at */
 void AdvisorMain::time() {
     std::cout << "Current time is 000000" << std::endl;
 }
+
 /** move to next time step */
 void AdvisorMain::step() {
     std::cout << "Moving to the next step..." << std::endl;
 }
+
 /** HERE IMPLEMENT YOUR OWN COMMAND */
 
 
@@ -115,28 +153,28 @@ std::string AdvisorMain::getUserOption() {
 }
 
 void AdvisorMain::processUserOption(std::string userOption) {
-    // create vector to get help cmd option
-    std::vector<std::string> token = CSVReader::tokenise(userOption, ' ');
+    // create vector to compare user input
+    std::vector<std::string> tokens = CSVReader::tokenise(userOption, ' ');
 
     if (userOption.compare("help") == 0) {
         help();
     }
-    if (token.size() == 2 && token[0].compare("help") == 0) {
-        helpcmd(token[1]);
+    if (tokens.size() == 2 && tokens[0].compare("help") == 0) {
+        helpcmd(tokens[1]);
     }
     if (userOption.compare("prod") == 0) {
         prod();
     }
-    if (userOption.compare("min") == 0) {
-        min();
+    if (tokens[0].compare("min") == 0) {
+        min(tokens);
     }
-    if (userOption.compare("max") == 0) {
-        max();
+    if (tokens[0].compare("max") == 0) {
+        max(tokens);
     }
-    if (userOption.compare("avg") == 0) {
+    if (tokens[0].compare("avg") == 0) {
         avg();
     }
-    if (userOption.compare("predict") == 0) {
+    if (tokens[0].compare("predict") == 0) {
         predict();
     }
     if (userOption.compare("time") == 0) {
