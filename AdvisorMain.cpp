@@ -1,6 +1,7 @@
 #include "AdvisorMain.h"
 #include <iostream>
 #include <string>
+#include "CSVReader.h"
 
 AdvisorMain::AdvisorMain() {
 
@@ -37,26 +38,29 @@ void AdvisorMain::helpcmd(std::string cmd) {
     if (cmd.compare("prod") == 0) {
         std::cout << "list available products" << std::endl;
     }
-    if (cmd.compare("min") == 0) {
+    else if (cmd.compare("min") == 0) {
         std::cout << "min ETH/BTC ask -> min ETH/BTC ask in the current time step" << std::endl;
     }
-    if (cmd.compare("max") == 0) {
+    else if (cmd.compare("max") == 0) {
         std::cout << "max ETH/BTC ask -> max ETH/BTC ask in the current time step" << std::endl;
     }
-    if (cmd.compare("avg") == 0) {
+    else if (cmd.compare("avg") == 0) {
         std::cout << "avg ETH/BTC bid 10 -> average ETH/BTC bid over last 10 timesteps" << std::endl;
     }
-    if (cmd.compare("predict") == 0) {
+    else if (cmd.compare("predict") == 0) {
         std::cout << "predict max ETH/BTC bid ->  The average ETH/BTC ask price over the last 10 timesteps" << std::endl;
     }
-    if (cmd.compare("time") == 0) {
+    else if (cmd.compare("time") == 0) {
         std::cout << "state current time in dataset, i.e. which timeframe are we looking at" << std::endl;
     }
-    if (cmd.compare("step") == 0) {
+    else if (cmd.compare("step") == 0) {
         std::cout << "move to next time step" << std::endl;
     }
-    if (cmd.compare("exit") == 0) {
+    else if (cmd.compare("exit") == 0) {
         std::cout << "exit the program" << std::endl;
+    }
+    else {
+        std::cout << "wrong command, type 'help' to see the list of available commands." << std::endl;
     }
 }
 /** list available products */
@@ -101,12 +105,16 @@ std::string AdvisorMain::getUserOption() {
     std::cout << "You chose " << userOption << std::endl;
     return userOption;
 }
+
 void AdvisorMain::processUserOption(std::string userOption) {
+    // create vector to get help cmd option
+    std::vector token = CSVReader::tokenise(userOption, ' ');
+
     if (userOption.compare("help") == 0) {
         help();
     }
-    if (userOption.compare("help cmd") == 0) {
-        helpcmd("avg");
+    if (token.size() == 2 && token[0].compare("help") == 0) {
+        helpcmd(token[1]);
     }
     if (userOption.compare("prod") == 0) {
         prod();
