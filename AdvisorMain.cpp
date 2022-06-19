@@ -35,38 +35,58 @@ void AdvisorMain::help() {
     "\n time"
     "\n step"
     "\n custom"
+    "\n log"
     "\n exit"
     << std::endl;
+
+    log.push_back("help");
 }
 /** output help for the specified command */
 void AdvisorMain::helpcmd(std::string cmd) {
     if (cmd.compare("prod") == 0) {
         std::cout << "list available products" << std::endl;
+        log.push_back("help prod");
+
     }
     else if (cmd.compare("min") == 0) {
         std::cout << "min ETH/BTC ask -> min ETH/BTC ask in the current time step" << std::endl;
+        log.push_back("help min");
+
     }
     else if (cmd.compare("max") == 0) {
         std::cout << "max ETH/BTC ask -> max ETH/BTC ask in the current time step" << std::endl;
+        log.push_back("help max");
+
     }
     else if (cmd.compare("avg") == 0) {
         std::cout << "avg ETH/BTC bid 10 -> average ETH/BTC bid over last 10 timesteps" << std::endl;
+        log.push_back("help avg");
+
     }
     else if (cmd.compare("predict") == 0) {
-        std::cout << "predict max ETH/BTC bid ->  The average ETH/BTC ask price over the last 10 timesteps" << std::endl;
+        std::cout << "predict max ETH/BTC bid ->  The average ETH/BTC ask price over all previous timesteps" << std::endl;
+        log.push_back("help predict");
     }
     else if (cmd.compare("time") == 0) {
         std::cout << "state current time in dataset, i.e. which timeframe are we looking at" << std::endl;
+        log.push_back("help time");
     }
     else if (cmd.compare("step") == 0) {
         std::cout << "move to next time step" << std::endl;
+        log.push_back("help step");
+    }
+    else if (cmd.compare("log") == 0) {
+        std::cout << "print out all entered commands" << std::endl;
+        log.push_back("help log");
     }
     else if (cmd.compare("exit") == 0) {
         std::cout << "exit the program" << std::endl;
+        log.push_back("help exit");
     }
     else {
         std::cout << "wrong command, type 'help' to see the list of available commands." << std::endl;
     }
+
 }
 
 /** list available products */
@@ -78,6 +98,7 @@ void AdvisorMain::prod() {
     // print new line  
     std::cout << "\n" << std::endl;
 
+    log.push_back("prod");
 }
 
 /** find minimum bid or ask for product in current time step */
@@ -102,9 +123,10 @@ double AdvisorMain::min(std::vector<std::string> tokens) {
         || entries[0].orderType == OrderBookType::unknown) {
         std::cout << "Bad input!" << std::endl;
         exit(0);
-    } 
-    return orderBook.getLowPrice(entries);
+    }
 
+    log.push_back("min");
+    return orderBook.getLowPrice(entries);
 }
 
 /** find maximum bid or ask for product in current time step */
@@ -121,6 +143,8 @@ double AdvisorMain::max(std::vector<std::string> tokens) {
         std::cout << "Bad input!" << std::endl;
         exit(0);
     } 
+
+    log.push_back("max");
     return orderBook.getHighPrice(entries);
 }
 
@@ -158,7 +182,10 @@ void AdvisorMain::avg(std::vector<std::string> tokens) {
         timeTemp = orderBook.getPreviousTime(timeTemp);
     }
     average = average / steps;
-    std::cout << average << std::endl;
+    std::cout << "the average " << tokens[1] << tokens[2] << " price over the last " 
+                << tokens[3] << " timesteps was " << average << std::endl;
+
+    log.push_back("avg");
 }
 
 /** predict max or min ask or bid for the sent product for the next time step */
@@ -190,6 +217,7 @@ void AdvisorMain::predict(std::vector<std::string> tokens) {
     average = average / stepCount;
     std::cout << "predict " << tokens[1] << " for " << tokens[2] << " is " << average << std::endl;
 
+    log.push_back("predict");
 }
 
 /** state current time in dataset, i.e. which timeframe are we looking at */
@@ -197,6 +225,7 @@ void AdvisorMain::time() {
     // trim currentTime string and print it
     std::vector<std::string> time = CSVReader::tokenise(currentTime,'.');
     std::cout << time[0] << std::endl;
+    log.push_back("time");
 }
 
 /** move to next time step */
@@ -206,10 +235,8 @@ void AdvisorMain::step() {
      // trim currentTime string and print it
     std::vector<std::string> time = CSVReader::tokenise(currentTime,'.');
     std::cout << "now at " << time[0] << std::endl;
+    log.push_back("step");
 }
-
-/** HERE IMPLEMENT YOUR OWN COMMAND */
-
 
 
 std::string AdvisorMain::getUserOption() {
@@ -256,6 +283,13 @@ void AdvisorMain::processUserOption(std::string userOption) {
     if (userOption.compare("step") == 0) {
         step();
     }
+    if (userOption.compare("log") == 0) {
+        std::cout << "commands previously chosen: " << std::endl;
+        for (std::string& l : log) {
+            std::cout << l << std::endl;
+        }
+    }
+    
     if (userOption.compare("exit") == 0) {
         exit(3);
     }

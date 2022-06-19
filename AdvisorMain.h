@@ -28,7 +28,8 @@ class AdvisorMain {
         void time();
         /** move to next time step */
         void step();
-        /** HERE IMPLEMENT YOUR OWN COMMAND */
+        /** stores all previosly entered commands */
+        std::vector<std::string> log;
 
         std::string getUserOption();
         void processUserOption(std::string userOption);
