@@ -59,6 +59,17 @@ std::string OrderBook::getNextTime(std::string timestamp) {
     return next_timestamp;
 }
 
+std::string OrderBook::getPreviousTime(std::string timestamp) {
+    std::string previous_timestamp = "";
+    for (int i = orders.size() - 1; i >= 0; i--) {
+        if (orders[i].timestamp < timestamp) {
+            previous_timestamp = orders[i].timestamp;
+            break;
+        }
+    }
+    return previous_timestamp;
+}
+  
 double OrderBook::getHighPrice(std::vector<OrderBookEntry>& orders) {
     double max = orders[0].price;
     for (OrderBookEntry& e : orders) {
@@ -73,4 +84,13 @@ double OrderBook::getLowPrice(std::vector<OrderBookEntry>& orders) {
         if (e.price < min) min = e.price;
     }
     return min;
+}
+
+double OrderBook::calculateAverage(std::vector<OrderBookEntry>& orders) {
+    double average = 0;
+    for (OrderBookEntry& e : orders) {
+        average = average + e.price;
+    }
+    average = average / orders.size();
+    return average;
 }

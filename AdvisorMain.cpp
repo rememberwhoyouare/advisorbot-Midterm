@@ -4,7 +4,7 @@
 #include <vector>
 #include <algorithm>
 #include "CSVReader.h"
-#include "OrderBook.h"
+#include "OrderBookEntry.h"
 
 AdvisorMain::AdvisorMain() {
 
@@ -92,35 +92,79 @@ void AdvisorMain::min(std::vector<std::string> tokens) {
     // OrderBookType meow = OrderBookEntry::stringToOrderBookType(tokens[2]);
     // std::cout << meow << std::endl;
 
-    std::vector<OrderBookEntry> entries = orderBook.getOrders(OrderBookEntry::stringToOrderBookType(tokens[2]), tokens[1], currentTime);
-    std::vector<std::string> prod = orderBook.getKnownProducts();
-
+    std::vector<OrderBookEntry> entries = orderBook.getOrders(OrderBookEntry::stringToOrderBookType(tokens[2]), 
+                                                                tokens[1], 
+                                                                currentTime);
+    
     // check for bad input
-    if (std::find(prod.begin(), prod.end(), tokens[1]) == prod.end() || entries[0].orderType == OrderBookType::unknown) {
+    std::vector<std::string> prod = orderBook.getKnownProducts();
+    if (std::find(prod.begin(), prod.end(), tokens[1]) == prod.end() 
+        || entries[0].orderType == OrderBookType::unknown) {
         std::cout << "Bad input!" << std::endl;
         exit(0);
     } 
-    std::cout << "The min " << tokens[2] << " for " << tokens[1] << " is " << orderBook.getLowPrice(entries) << std::endl;
+    std::cout << "The min " << tokens[2] << " for " << tokens[1] 
+              << " is " << orderBook.getLowPrice(entries) << std::endl;
 
 }
 
 /** find maximum bid or ask for product in current time step */
 void AdvisorMain::max(std::vector<std::string> tokens) {
 
-    std::vector<OrderBookEntry> entries = orderBook.getOrders(OrderBookEntry::stringToOrderBookType(tokens[2]), tokens[1], currentTime);
+    std::vector<OrderBookEntry> entries = orderBook.getOrders(OrderBookEntry::stringToOrderBookType(tokens[2]), 
+                                                                tokens[1], 
+                                                                currentTime);
     std::vector<std::string> prod = orderBook.getKnownProducts();
 
     // check for bad input
-    if (std::find(prod.begin(), prod.end(), tokens[1]) == prod.end() || entries[0].orderType == OrderBookType::unknown) {
+    if (std::find(prod.begin(), prod.end(), tokens[1]) == prod.end() 
+        || entries[0].orderType == OrderBookType::unknown) {
         std::cout << "Bad input!" << std::endl;
         exit(0);
     } 
-    std::cout << "The max " << tokens[2] << " for " << tokens[1] << " is " << orderBook.getHighPrice(entries) << std::endl;}
+    std::cout << "The max " << tokens[2] << " for " << tokens[1] 
+              << " is " << orderBook.getHighPrice(entries) << std::endl;
+}
+
 
 /** compute average ask or bid for the sent product 
  * over the sent number of time steps */
-void AdvisorMain::avg() {
-    std::cout << "The average is 0 so far" << std::endl;
+void AdvisorMain::avg(std::vector<std::string> tokens) {
+    // check for bad input 
+    std::vector<std::string> prod = orderBook.getKnownProducts();
+
+    if (std::find(prod.begin(), prod.end(), tokens[1]) == prod.end()) {
+        std::cout << "Wrong product" << std::endl;
+        exit(0);
+    } 
+    int steps;
+    try {
+        steps = stoi(tokens[3]);
+        } catch (const std::exception& e) {
+            std::cout << "Bad input!" << std::endl;
+            exit(0);
+        }
+    std::string timeTemp = currentTime;
+    double average = 0;
+    // 
+    // std::cout << "Stepcount:" << stepCount << std::endl;
+
+    if (steps > stepCount) {
+        steps = stepCount;
+    }
+        // std::cout << "steps:" << steps << std::endl;
+
+    for (int i = 0; i < steps; i++) {
+        std::vector<OrderBookEntry> entries = orderBook.getOrders(OrderBookEntry::stringToOrderBookType(tokens[2]), 
+                                                                    tokens[1], 
+                                                                    timeTemp);
+        average = average + orderBook.calculateAverage(entries);
+        // std::cout << "Average now : " << average << std::endl;
+        // std::cout << "time now : " << timeTemp << std::endl;
+        timeTemp = orderBook.getPreviousTime(timeTemp);
+    }
+    average = average / steps;
+    std::cout << average << std::endl;
 }
 
 /** predict max or min ask or bid for the sent product for the next time step */
@@ -130,12 +174,18 @@ void AdvisorMain::predict() {
 
 /** state current time in dataset, i.e. which timeframe are we looking at */
 void AdvisorMain::time() {
-    std::cout << "Current time is 000000" << std::endl;
+    // trim currentTime string and print it
+    std::vector<std::string> time = CSVReader::tokenise(currentTime,'.');
+    std::cout << time[0] << std::endl;
 }
 
 /** move to next time step */
 void AdvisorMain::step() {
-    std::cout << "Moving to the next step..." << std::endl;
+    currentTime = orderBook.getNextTime(currentTime);
+    stepCount += 1;
+     // trim currentTime string and print it
+    std::vector<std::string> time = CSVReader::tokenise(currentTime,'.');
+    std::cout << "now at " << time[0] << std::endl;
 }
 
 /** HERE IMPLEMENT YOUR OWN COMMAND */
@@ -172,7 +222,7 @@ void AdvisorMain::processUserOption(std::string userOption) {
         max(tokens);
     }
     if (tokens[0].compare("avg") == 0) {
-        avg();
+        avg(tokens);
     }
     if (tokens[0].compare("predict") == 0) {
         predict();

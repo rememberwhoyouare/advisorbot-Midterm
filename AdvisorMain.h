@@ -21,7 +21,7 @@ class AdvisorMain {
         void max(std::vector<std::string> tokens);
         /** compute average ask or bid for the sent product 
          * over the sent number of time steps */
-        void avg();
+        void avg(std::vector<std::string> tokens);
         /** predict max or min ask or bid for the sent product for the next time step */
         void predict();
         /** state current time in dataset, i.e. which timeframe are we looking at */
@@ -34,5 +34,7 @@ class AdvisorMain {
         void processUserOption(std::string userOption);
 
         std::string currentTime;
+        // placeholder for step count
+        int stepCount = 0;
         OrderBook orderBook{"20200601.csv"};
 };

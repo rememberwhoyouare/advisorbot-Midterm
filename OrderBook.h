@@ -19,14 +19,21 @@ class OrderBook
         static double getHighPrice(std::vector<OrderBookEntry>& orders);
         /** return the price of the lowest bid in the sent set */
         static double getLowPrice(std::vector<OrderBookEntry>& orders);
+        /** calculate average in the current time step */
+        static double calculateAverage(std::vector<OrderBookEntry>& orders);
         /** returns the earliest time in the orderbook */
         std::string getEarliestTime();
+        
         /** returns the next time after 
          * the sent time in the orderbook 
          * If there is no next timestamp, wraps around to start
         */
         std::string getNextTime(std::string timestamp);
 
+        /** returns the time before the sent time in the orderbook
+         * If there is not previous timestamp, it stops
+        */
+        std::string getPreviousTime(std::string timestamp);
 
     private:
         std::vector<OrderBookEntry> orders;
