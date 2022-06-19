@@ -81,7 +81,7 @@ void AdvisorMain::prod() {
 }
 
 /** find minimum bid or ask for product in current time step */
-void AdvisorMain::min(std::vector<std::string> tokens) {
+double AdvisorMain::min(std::vector<std::string> tokens) {
 
     /*
 
@@ -103,13 +103,12 @@ void AdvisorMain::min(std::vector<std::string> tokens) {
         std::cout << "Bad input!" << std::endl;
         exit(0);
     } 
-    std::cout << "The min " << tokens[2] << " for " << tokens[1] 
-              << " is " << orderBook.getLowPrice(entries) << std::endl;
+    return orderBook.getLowPrice(entries);
 
 }
 
 /** find maximum bid or ask for product in current time step */
-void AdvisorMain::max(std::vector<std::string> tokens) {
+double AdvisorMain::max(std::vector<std::string> tokens) {
 
     std::vector<OrderBookEntry> entries = orderBook.getOrders(OrderBookEntry::stringToOrderBookType(tokens[2]), 
                                                                 tokens[1], 
@@ -122,8 +121,7 @@ void AdvisorMain::max(std::vector<std::string> tokens) {
         std::cout << "Bad input!" << std::endl;
         exit(0);
     } 
-    std::cout << "The max " << tokens[2] << " for " << tokens[1] 
-              << " is " << orderBook.getHighPrice(entries) << std::endl;
+    return orderBook.getHighPrice(entries);
 }
 
 
@@ -146,21 +144,17 @@ void AdvisorMain::avg(std::vector<std::string> tokens) {
         }
     std::string timeTemp = currentTime;
     double average = 0;
-    // 
-    // std::cout << "Stepcount:" << stepCount << std::endl;
 
+    // check how many steps back are available
     if (steps > stepCount) {
         steps = stepCount;
     }
-        // std::cout << "steps:" << steps << std::endl;
 
     for (int i = 0; i < steps; i++) {
         std::vector<OrderBookEntry> entries = orderBook.getOrders(OrderBookEntry::stringToOrderBookType(tokens[2]), 
                                                                     tokens[1], 
                                                                     timeTemp);
         average = average + orderBook.calculateAverage(entries);
-        // std::cout << "Average now : " << average << std::endl;
-        // std::cout << "time now : " << timeTemp << std::endl;
         timeTemp = orderBook.getPreviousTime(timeTemp);
     }
     average = average / steps;
@@ -168,8 +162,34 @@ void AdvisorMain::avg(std::vector<std::string> tokens) {
 }
 
 /** predict max or min ask or bid for the sent product for the next time step */
-void AdvisorMain::predict() {
-    std::cout << "Cannot predict without data" << std::endl;
+void AdvisorMain::predict(std::vector<std::string> tokens) {
+
+    // check for bad input
+    std::vector<std::string> prod = orderBook.getKnownProducts();
+    if (std::find(prod.begin(), prod.end(), tokens[2]) == prod.end()) {
+        std::cout << "Bad input!" << std::endl;
+        exit(0);
+    } 
+
+    double average = 0;
+    std::string timeTemp = currentTime;
+
+    std::vector<OrderBookEntry> entries = orderBook.getOrders(OrderBookEntry::stringToOrderBookType(tokens[3]), 
+                                                                tokens[1], 
+                                                                currentTime);
+
+    std::vector<std::string> newTokens = std::vector<std::string>(tokens.begin() + 1, tokens.end());
+    for (int i = 0; i < stepCount; i++) {
+        if (tokens[1] == "max") {
+            average = average + max(newTokens);
+        } else if (tokens[1] == "min") {
+            average = average + min(newTokens);
+        }
+        timeTemp = orderBook.getPreviousTime(timeTemp);
+    }
+    average = average / stepCount;
+    std::cout << "predict " << tokens[1] << " for " << tokens[2] << " is " << average << std::endl;
+
 }
 
 /** state current time in dataset, i.e. which timeframe are we looking at */
@@ -216,16 +236,19 @@ void AdvisorMain::processUserOption(std::string userOption) {
         prod();
     }
     if (tokens[0].compare("min") == 0) {
-        min(tokens);
+        std::cout << "The min " << tokens[2] << " for " << tokens[1] 
+                    << " is " << min(tokens) << std::endl;
+
     }
     if (tokens[0].compare("max") == 0) {
-        max(tokens);
+        std::cout << "The max " << tokens[2] << " for " << tokens[1] 
+                    << " is " << max(tokens) << std::endl;
     }
     if (tokens[0].compare("avg") == 0) {
         avg(tokens);
     }
     if (tokens[0].compare("predict") == 0) {
-        predict();
+        predict(tokens);
     }
     if (userOption.compare("time") == 0) {
         time();

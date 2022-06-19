@@ -16,14 +16,14 @@ class AdvisorMain {
         /** list available products */
         void prod();
         /** find minimum bid or ask for product in current time step */
-        void min(std::vector<std::string> tokens);
+        double min(std::vector<std::string> tokens);
         /** find maximum bid or ask for product in current time step */
-        void max(std::vector<std::string> tokens);
+        double max(std::vector<std::string> tokens);
         /** compute average ask or bid for the sent product 
          * over the sent number of time steps */
         void avg(std::vector<std::string> tokens);
         /** predict max or min ask or bid for the sent product for the next time step */
-        void predict();
+        void predict(std::vector<std::string> tokens);
         /** state current time in dataset, i.e. which timeframe are we looking at */
         void time();
         /** move to next time step */
