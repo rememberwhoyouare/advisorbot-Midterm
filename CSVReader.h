@@ -1,3 +1,9 @@
+/*
+----------------------------------------------------------
+*****   This object is copied from the source code   *****
+----------------------------------------------------------
+*/
+
 #pragma once
 
 #include "OrderBookEntry.h"

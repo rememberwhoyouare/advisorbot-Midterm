@@ -1,3 +1,9 @@
+/*
+----------------------------------------------------------
+*****   This object is copied from the source code   *****
+----------------------------------------------------------
+*/
+
 #include "CSVReader.h"
 #include <iostream>
 #include <fstream>
